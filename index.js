@@ -71,12 +71,18 @@ const writeConfig = function (dirname) {
   Object.keys(map.category).map(function (key) {
     let tag = map.category[key]
     let res = tag.map(function (item) {
-      return {
+      return sliceInfo({
         title: item.config.title || item.stats.name,
+        // 输出路径要去除ci的部署路径
         path: getOutputPath(item.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
-      }
+      }, item)
     })
     fs.writeFileSync(path.join(conf.output, dirname, '/' + key + '.json'), JSON.stringify(res, null, 2))
+  })
+}
+const sliceInfo = function (res, item) {
+  return Object.assign({}, res, {
+    time: item.stats.birthtimeMs
   })
 }
 const parseConfig = function (yaml, stats) {
@@ -91,14 +97,14 @@ const parseConfig = function (yaml, stats) {
     throw (new Error(err))
   }
 }
-const mkdirsSync = (dir) => {
+const mkdirsSync = function (dir) {
   dir = path.join(dir)
   if (fs.existsSync(dir)) {
-    return true;
+    return true
   } else {
     if (mkdirsSync(path.dirname(dir))) {
-      fs.mkdirSync(dir);
-      return true;
+      fs.mkdirSync(dir)
+      return true
     }
   }
 }
