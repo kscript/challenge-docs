@@ -3,7 +3,8 @@ const path = require('path')
 const jsyaml = require('js-yaml')
 const fsLoader = require('ks-file-loader').default
 const conf = {
-  output: './question/',
+  input: './public/',
+  output: './dist/',
   tagNum: 5,
   sort: {
     key: 'birthtimeMs',
@@ -90,6 +91,17 @@ const parseConfig = function (yaml, stats) {
     throw(new Error(err))
   }
 }
+const mkdirsSync = (dir) => {
+  if (fs.existsSync(dir)) {
+    return true;
+  } else {
+    if (mkdirsSync(path.dirname(dir))) {
+      fs.mkdirSync(dir);
+      return true;
+    }
+  }
+}
+
 const extract = function (content, type) {
   const str = '---'
   const index = content.indexOf(str)
@@ -111,17 +123,19 @@ const unique = function(ary) {
   })
   return newAry
 }
+mkdirsSync(conf.output)
 fsLoader({
   // 要进行转换的目录
   // 相对于项目目录, 而非文件所在目录
-  path: './',
+  path: conf.input,
 
   // 文件扩展名, 支持正则
-  ext: 'md',
+  // ext: 'md',
 
   // 是否深层遍历
   deep: true,
-
+  
+  showDir: true,
   // 是否读取文件内容
   readFile: true,
   /**
@@ -131,14 +145,26 @@ fsLoader({
    * @param {function} done 文件处理完毕的回调 (必要的)
    */
   loader: function(stats, data, done){
-    let info = extract(data)
-    var config = parseConfig(info.yaml, stats)
-    cached.push({
-      info,
-      data,
-      stats,
-      config
-    })
+    let res = path.parse(stats.path)
+    let relativePath = path.join(stats.path).slice(path.join(conf.input).length)
+    let outputPath = path.join(conf.output, relativePath)
+    mkdirsSync(path.parse(outputPath).dir)
+    if (stats.type === 'file') {
+      fs.writeFile(outputPath, data, function() {
+        if (res.ext === '.md') {
+          let info = extract(data)
+          let config = parseConfig(info.yaml, stats)
+          cached.push({
+            info,
+            data,
+            stats,
+            config
+          })
+        }
+        done()
+      })
+      return false
+    }
   },
   // 转换完毕
   done: function(){
