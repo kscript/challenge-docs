@@ -156,7 +156,7 @@ const build = function (done) {
     path: conf.input,
     deep: false,
     showDir: true,
-    readFile: false,
+    readFile: true,
     loader(stats, data, done) {
       if (stats.type === 'file') {
         let outputPath = getOutputPath(stats.path, conf.input, conf.output)
