@@ -5,6 +5,8 @@ const fsLoader = require('ks-file-loader').default
 const conf = {
   input: './public/',
   output: './dist/',
+  // 部署路径应为输出路径的子集
+  local_dir: 'dist',
   tagNum: 5,
   sort: {
     key: 'birthtimeMs',
@@ -71,7 +73,7 @@ const writeConfig = function (dirname) {
     let res = tag.map(function (item) {
       return {
         title: item.config.title || item.stats.name,
-        path: item.stats.path
+        path: getOutputPath(item.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
       }
     })
     fs.writeFileSync(path.join(conf.output, dirname, '/' + key + '.json'), JSON.stringify(res, null, 2))
