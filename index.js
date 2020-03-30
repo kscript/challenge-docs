@@ -19,9 +19,13 @@ const map = {
   tag: {}
 }
 const keys = {}
-Object.keys(map).some(function (item) {
-  keys[item] = {}
-})
+const resetProperty = function() {
+  map.category = {}
+  map.tag = {}
+  Object.keys(map).some(function (item) {
+    keys[item] = {}
+  })
+}
 const countInfo = function (cached) {
   cached.map(function (file) {
     let category = countVal(map, 'category', file)
@@ -170,6 +174,7 @@ const build = function (done) {
         return false
       } else
         if (stats.type === 'dir') {
+          resetProperty()
           let dirname = stats.name
           mkdirsSync(path.join(conf.output, dirname))
           fsLoader({
