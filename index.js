@@ -14,17 +14,15 @@ const conf = {
   }
 }
 const cached = []
-const map = {
-  category: {},
-  tag: {}
-}
+const map = {}
 const keys = {}
-const resetProperty = function() {
+const resetProperty = function () {
   map.category = {}
   map.tag = {}
   Object.keys(map).some(function (item) {
     keys[item] = {}
   })
+  cached.splice(0)
 }
 const countInfo = function (cached) {
   cached.map(function (file) {
@@ -91,7 +89,7 @@ const sliceInfo = function (res, item) {
 }
 const parseConfig = function (yaml, stats) {
   try {
-    let config = jsyaml.load(yaml.slice(3, -3)) || {}
+    let config = jsyaml.load(yaml) || {}
     if (config instanceof Object) {
       return config
     }
@@ -114,12 +112,10 @@ const mkdirsSync = function (dir) {
 }
 
 const extract = function (content, type) {
-  const str = '---'
-  const index = content.indexOf(str)
-  const nextIndex = content.slice(index + 1).indexOf(str)
+  const strs = (' ' + content).split('---')
   const resObj = {
-    markdown: nextIndex < 0 ? content : content.slice(nextIndex + str.length),
-    yaml: nextIndex < 0 ? '' : content.slice(index, nextIndex + str.length + 1)
+    markdown: strs.slice(0, 1).concat(strs.slice(2)).join('').slice(1),
+    yaml: strs[1] || ''
   }
   return type ? resObj[type] || resObj.markdown : resObj
 }
@@ -174,11 +170,12 @@ const build = function (done) {
         return false
       } else
         if (stats.type === 'dir') {
-          resetProperty()
           let dirname = stats.name
           mkdirsSync(path.join(conf.output, dirname))
+          resetProperty()
           fsLoader({
             path: stats.path,
+            mode: 'DFS',
             deep: true,
             showDir: true,
             readFile: true,
