@@ -66,25 +66,35 @@ const countSort = function (list) {
 }
 const writeConfig = function (dirname) {
   let category = []
+  let basePath = path.join(conf.output, dirname)
   Object.keys(keys.category).map(function (item) {
     category.push([item, countSort(keys.category[item]).slice(0, conf.tagNum).join()])
   })
-  fs.writeFileSync(path.join(conf.output, dirname, '/categorys.json'), JSON.stringify(category, null, 2))
+  fs.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(category, null, 2))
+  fs.writeFileSync(path.join(basePath, 'list.json'), JSON.stringify(cached.map(function(item){
+    return sliceListInfo({}, item, conf)
+  }), null, 2))
   Object.keys(map.category).map(function (key) {
     let tag = map.category[key]
     let res = tag.map(function (item) {
-      return sliceInfo({
-        title: item.config.title || item.stats.name,
-        // 输出路径要去除ci的部署路径
-        path: getOutputPath(item.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
-      }, item)
+      return sliceTagInfo({}, item, conf)
     })
-    fs.writeFileSync(path.join(conf.output, dirname, '/' + key + '.json'), JSON.stringify(res, null, 2))
+    fs.writeFileSync(path.join(basePath, key + '.json'), JSON.stringify(res, null, 2))
   })
 }
-const sliceInfo = function (res, item) {
-  return Object.assign({}, res, {
-    time: item.stats.birthtimeMs
+const sliceInfo = function (info, file, conf) {
+  return Object.assign({}, {
+    time: file.stats.birthtimeMs,
+    title: file.config.title || file.stats.name,
+    path: getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
+  }, info)
+}
+const sliceTagInfo = function (info, file, conf) {
+  return Object.assign(sliceInfo(info, file, conf), {
+  })
+}
+const sliceListInfo = function (info, file, conf) {
+  return Object.assign(sliceInfo(info, file, conf), {
   })
 }
 const parseConfig = function (yaml, stats) {
