@@ -3,7 +3,6 @@ title: 介绍一下CSS的盒模型
 categories: 
   - css
 tags: 
-  - css
   - 盒模型
 ---
 CSS的盒模型有两种，IE 盒模型、标准盒模型  
