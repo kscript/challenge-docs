@@ -1,8 +1,8 @@
 ---
 title: css居中布局
-category: CSS
-tag: 
-  - CSS
+categories: css
+tags: 
+  - css
 ---
 ### css布局
 

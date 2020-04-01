@@ -1,6 +1,26 @@
 [
   [
-    "CSS",
-    "CSS"
+    "css",
+    "css"
+  ],
+  [
+    "electron",
+    "js,electron"
+  ],
+  [
+    "git",
+    "git"
+  ],
+  [
+    "js",
+    "js,es6"
+  ],
+  [
+    "npm",
+    "npm"
+  ],
+  [
+    "vue",
+    "vue"
   ]
 ]

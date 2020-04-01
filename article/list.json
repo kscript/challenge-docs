@@ -1,10 +1,82 @@
 [
   {
-    "time": 1585741313629.15,
+    "time": 1585744842251.4922,
     "title": "css居中布局",
     "path": "/article/CSS/css居中布局.md",
     "category": [
-      "CSS"
+      "css"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "在 electron 中使用截屏功能",
+    "path": "/article/electron/electron-cupture.md",
+    "category": [
+      "electron"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "electron 快速入门",
+    "path": "/article/electron/electron-quick-start.md",
+    "category": [
+      "electron"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "git合并分支",
+    "path": "/article/git/git合并分支.md",
+    "category": [
+      "git"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "git合并远程提交记录",
+    "path": "/article/git/git合并远程提交记录.md",
+    "category": [
+      "git"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "git生成SSHKey",
+    "path": "/article/git/git生成SSHKey.md",
+    "category": [
+      "git"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "es6笔记",
+    "path": "/article/js/es6笔记.md",
+    "category": [
+      "js"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "模拟new一个实例",
+    "path": "/article/js/模拟new一个实例.md",
+    "category": [
+      "js"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "使用verdaccio搭建本地npm仓库",
+    "path": "/article/npm/使用verdaccio搭建本地npm仓库.md",
+    "category": [
+      "npm"
+    ]
+  },
+  {
+    "time": 1585744842251.4922,
+    "title": "vue中使用mixins的一些要点",
+    "path": "/article/vue/vue中使用mixins的一些要点.md",
+    "category": [
+      "vue"
     ]
   }
 ]
