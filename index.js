@@ -7,7 +7,7 @@ const conf = {
   output: './dist/',
   // 部署路径应为输出路径的子集
   local_dir: 'dist',
-  tagNum: 5,
+  tagsNum: 5,
   sort: {
     key: 'birthtimeMs',
     desc: true
@@ -17,8 +17,8 @@ const cached = []
 const map = {}
 const keys = {}
 const resetProperty = function () {
-  map.category = {}
-  map.tag = {}
+  map.categories = {}
+  map.tags = {}
   Object.keys(map).some(function (item) {
     keys[item] = {}
   })
@@ -26,11 +26,11 @@ const resetProperty = function () {
 }
 const countInfo = function (cached) {
   cached.map(function (file) {
-    let category = countVal(map, 'category', file)
-    let tag = countVal(map, 'tag', file)
-    category.map(function (c) {
-      tag.map(function (t) {
-        keys.category[c] = (keys.category[c] || []).concat(t)
+    let categories = countVal(map, 'categories', file)
+    let tags = countVal(map, 'tags', file)
+    categories.map(function (c) {
+      tags.map(function (t) {
+        keys.categories[c] = (keys.categories[c] || []).concat(t)
       })
     })
   })
@@ -65,18 +65,18 @@ const countSort = function (list) {
   })
 }
 const writeConfig = function (dirname) {
-  let category = []
+  let categories = []
   let basePath = path.join(conf.output, dirname)
-  Object.keys(keys.category).map(function (item) {
-    category.push([item, countSort(keys.category[item]).slice(0, conf.tagNum).join()])
+  Object.keys(keys.categories).map(function (item) {
+    categories.push([item, countSort(keys.categories[item]).slice(0, conf.tagsNum).join()])
   })
-  fs.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(category, null, 2))
+  fs.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
   fs.writeFileSync(path.join(basePath, 'list.json'), JSON.stringify(cached.map(function(item){
     return sliceListInfo({}, item, conf)
   }), null, 2))
-  Object.keys(map.category).map(function (key) {
-    let tag = map.category[key]
-    let res = tag.map(function (item) {
+  Object.keys(map.categories).map(function (key) {
+    let tags = map.categories[key]
+    let res = tags.map(function (item) {
       return sliceTagInfo({}, item, conf)
     })
     fs.writeFileSync(path.join(basePath, key + '.json'), JSON.stringify(res, null, 2))
@@ -95,7 +95,7 @@ const sliceTagInfo = function (info, file, conf) {
 }
 const sliceListInfo = function (info, file, conf) {
   return Object.assign(sliceInfo(info, file, conf), {
-    category: file.config.category instanceof Array ? file.config.category : [file.config.category]
+    category: file.config.categories instanceof Array ? file.config.categories : [file.config.categories]
   })
 }
 const parseConfig = function (yaml, stats) {
