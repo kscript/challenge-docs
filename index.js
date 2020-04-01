@@ -95,6 +95,7 @@ const sliceTagInfo = function (info, file, conf) {
 }
 const sliceListInfo = function (info, file, conf) {
   return Object.assign(sliceInfo(info, file, conf), {
+    category: file.config.category instanceof Array ? file.config.category : [file.config.category]
   })
 }
 const parseConfig = function (yaml, stats) {
