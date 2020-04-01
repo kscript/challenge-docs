@@ -1,7 +1,10 @@
 [
   {
-    "time": 1585626543234.1157,
+    "time": 1585741313629.15,
     "title": "css居中布局",
-    "path": "/article/CSS/css居中布局.md"
+    "path": "/article/CSS/css居中布局.md",
+    "category": [
+      "CSS"
+    ]
   }
 ]
