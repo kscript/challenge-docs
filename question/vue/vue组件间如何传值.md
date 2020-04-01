@@ -1,5 +1,5 @@
 ---
-title: v-show和v-if的区别
+title: vue组件间如何传值
 categories: 
   - vue
 tags: 
