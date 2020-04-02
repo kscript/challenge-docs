@@ -4,6 +4,8 @@ categories:
   - vue
 tags: 
   - 指令
+
+date: 2020-04-02 00:08:20
 ---
 
 v-show和v-if的区别：

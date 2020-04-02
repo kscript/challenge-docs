@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
-const jsyaml = require('js-yaml')
 const fsLoader = require('ks-file-loader').default
+const utils = require('./utils')
 const conf = {
   input: './public/',
   output: './dist/',
@@ -13,9 +13,9 @@ const conf = {
     desc: true
   }
 }
-const cached = []
 const map = {}
 const keys = {}
+const cached = []
 const resetProperty = function () {
   map.categories = {}
   map.tags = {}
@@ -44,7 +44,7 @@ const countVal = function (target, key, file) {
     val = [val]
   }
   if (val instanceof Array) {
-    return unique(val).map(function (item) {
+    return utils.unique(val).map(function (item) {
       if (obj[item]) {
         obj[item].push(file)
       } else {
@@ -86,7 +86,7 @@ const sliceInfo = function (info, file, conf) {
   return Object.assign({}, {
     time: file.stats.birthtimeMs,
     title: file.config.title || file.stats.name,
-    path: getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
+    path: utils.getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
   }, info)
 }
 const sliceTagInfo = function (info, file, conf) {
@@ -98,73 +98,10 @@ const sliceListInfo = function (info, file, conf) {
     category: file.config.categories instanceof Array ? file.config.categories : [file.config.categories]
   })
 }
-const parseConfig = function (yaml, stats) {
-  try {
-    let config = jsyaml.load(yaml) || {}
-    if (config instanceof Object) {
-      return config
-    }
-    console.log(config)
-    throw (new Error('配置信息读取失败!'))
-  } catch (err) {
-    throw (new Error(err))
-  }
-}
-const mkdirsSync = function (dir) {
-  dir = path.join(dir)
-  if (fs.existsSync(dir)) {
-    return true
-  } else {
-    if (mkdirsSync(path.dirname(dir))) {
-      fs.mkdirSync(dir)
-      return true
-    }
-  }
-}
 
-const extract = function (content, type) {
-  const strs = (' ' + content).split('---')
-  const resObj = {
-    markdown: strs.slice(0, 1).concat(strs.slice(2)).join('').slice(1),
-    yaml: strs[1] || ''
-  }
-  return type ? resObj[type] || resObj.markdown : resObj
-}
-
-const unique = function (ary) {
-  var obj = {}
-  var newAry = []
-  ary.map(function (item) {
-    if (!obj[item]) {
-      obj[item] = 1
-      newAry.push(item)
-    }
-  })
-  return newAry
-}
-
-const getOutputPath = function (currentPath, input, output) {
-  let relativePath = path.join(currentPath).slice(path.join(input).length)
-  return path.join(output, relativePath)
-}
-const deleteFolder = function (path) {
-  let files = []
-  if (fs.existsSync(path)) {
-    files = fs.readdirSync(path)
-    files.forEach(function (file, index) {
-      let curPath = path + "/" + file
-      if (fs.statSync(curPath).isDirectory()) {
-        deleteFolder(curPath)
-      } else {
-        fs.unlinkSync(curPath)
-      }
-    })
-    fs.rmdirSync(path)
-  }
-}
 const build = function (done) {
-  deleteFolder(conf.output)
-  mkdirsSync(conf.output)
+  utils.deleteFolder(conf.output)
+  utils.mkdirsSync(conf.output)
   // 第一层的子目录, 是与项目对应的类目
   // 当然, 这一层还可能有别的文件
   // 如果是目录, 整理该类目下的信息
@@ -176,13 +113,13 @@ const build = function (done) {
     readFile: true,
     loader(stats, data, done) {
       if (stats.type === 'file') {
-        let outputPath = getOutputPath(stats.path, conf.input, conf.output)
+        let outputPath = utils.getOutputPath(stats.path, conf.input, conf.output)
         fs.writeFile(outputPath, data, done)
         return false
       } else
         if (stats.type === 'dir') {
           let dirname = stats.name
-          mkdirsSync(path.join(conf.output, dirname))
+          utils.mkdirsSync(path.join(conf.output, dirname))
           resetProperty()
           fsLoader({
             path: stats.path,
@@ -192,16 +129,17 @@ const build = function (done) {
             readFile: true,
             loader: function (stats, data, done) {
               let ext = path.parse(stats.path).ext
-              let outputPath = getOutputPath(stats.path, conf.input, conf.output)
+              let outputPath = utils.getOutputPath(stats.path, conf.input, conf.output)
               if (stats.type === 'dir') {
-                mkdirsSync(outputPath)
+                utils.mkdirsSync(outputPath)
               } else
                 if (stats.type === 'file') {
-                  mkdirsSync(path.parse(outputPath).dir)
+                  utils.mkdirsSync(path.parse(outputPath).dir)
+                  data = utils.setTime(stats, data)
                   fs.writeFile(outputPath, data, function () {
                     if (ext === '.md') {
-                      let info = extract(data)
-                      let config = parseConfig(info.yaml, stats)
+                      let info = utils.extract(data)
+                      let config = utils.parseConfig(info.yaml, stats)
                       cached.push({
                         info,
                         data,
