@@ -4,6 +4,7 @@ categories:
   - vue
 tags: 
   - 组件
+date: 2020-04-02 00:12:46
 ---
 父子组件:
 
