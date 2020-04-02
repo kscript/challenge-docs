@@ -84,7 +84,7 @@ const writeConfig = function (dirname) {
 }
 const sliceInfo = function (info, file, conf) {
   return Object.assign({}, {
-    time: file.stats.birthtimeMs,
+    time: file.config.date,
     title: file.config.title || file.stats.name,
     path: utils.getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
   }, info)
@@ -136,6 +136,7 @@ const build = function (done) {
                 if (stats.type === 'file') {
                   utils.mkdirsSync(path.parse(outputPath).dir)
                   data = utils.setTime(stats, data)
+                  
                   fs.writeFile(outputPath, data, function () {
                     if (ext === '.md') {
                       let info = utils.extract(data)
