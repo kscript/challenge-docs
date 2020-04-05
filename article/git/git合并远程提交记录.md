@@ -5,8 +5,7 @@ tags:
   - git
 categories: git
 description: git进阶用法, 使用 git + vim 命令, 对远程提交记录进行操作
-
-
+sid: jpzro1q8fn
 ---
 #### 1. 选择要操作的记录
 ```git
