@@ -5,6 +5,8 @@ categories: js
 tags: 
   - js
 description: 模拟使用 new 实例化一个实例的过程
+
+
 ---
 #### 实现方法
 ```js
