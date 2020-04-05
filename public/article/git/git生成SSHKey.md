@@ -6,6 +6,7 @@ tags:
   - git
 
 date: 2020-04-01 19:48:03
+sid: k8hqsvncpz
 ---
 
 1. 配置全局 name 和 email

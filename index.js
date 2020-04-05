@@ -71,7 +71,7 @@ const writeConfig = function (dirname) {
     categories.push([item, countSort(keys.categories[item]).slice(0, conf.tagsNum).join()])
   })
   utils.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
-  utils.writeFileSync(path.join(basePath, 'list.json'), JSON.stringify(cached.map(function(item, index){
+  utils.writeFileSync(path.join(basePath, 'timeline.json'), JSON.stringify(cached.map(function(item, index){
     return sliceListInfo({
     }, item, conf)
   }), null, 2))
@@ -90,6 +90,7 @@ const writeConfig = function (dirname) {
 const sliceInfo = function (info, file, conf) {
   return Object.assign({}, {
     time: file.config.date,
+    sid: file.config.sid,
     title: file.config.title || file.stats.name,
     path: utils.getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
   }, info)
@@ -105,6 +106,7 @@ const sliceListInfo = function (info, file, conf) {
 }
 
 const build = function (done) {
+  let edit = false
   const menu = []
   utils.deleteFolder(conf.output)
   utils.mkdirsSync(conf.output)
@@ -142,14 +144,22 @@ const build = function (done) {
               } else
                 if (stats.type === 'file') {
                   utils.mkdirsSync(path.parse(outputPath).dir)
-                  data = utils.addPropertys(data, function(config) {
-                    if(config.date) {
-                      return {}
+                  let newData = utils.addPropertys(data, function(config) {
+                    if (!edit && (!config.sid || !config.date)) {
+                      edit = true
                     }
-                    return {
-                      date: utils.formatTime(stats.birthtime, 'yyyy-MM-dd hh:mm:ss')
+                    let timestamp = +new Date(config.date || stats.birthtime)
+                    let base = config.sid ? {} : {
+                      sid: timestamp.toString(36) + Math.floor(Math.random() * 1e3 + 36).toString(36)
                     }
+                    return Object.assign(base, config.date ? {} : {
+                      date: utils.formatTime(stats.birthtime, 'yy-MM-dd hh:mm:ss')
+                    })
                   })
+                  if (newData !== data) {
+                    utils.writeFileSync(stats.path, newData)
+                    data = newData
+                  }
                   utils.writeFile(outputPath, data, function () {
                     if (ext === '.md') {
                       let info = utils.extract(data)
@@ -182,6 +192,10 @@ const build = function (done) {
       utils.writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
       typeof done === 'function' && done()
       console.log("执行完毕")
+      if (edit) {
+        console.log("部分md文件未设置sid或date属性, 已自动写入. 该脚本如果是通过pre-commit钩子触发, 可能需要重新add")
+        process.exit(1)
+      }
     }
   })
 }

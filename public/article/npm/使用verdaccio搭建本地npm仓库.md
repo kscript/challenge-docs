@@ -9,6 +9,7 @@ tags:
   - npm
 categories: npm
 description: 使用 verdaccio 搭建本地 npm 仓库
+sid: jq5ic5v4o5
 ---
 ### 前言
 在前端日益工程化的今天, 我们几乎每天都在和node, npm, webpack这些工具打交道.

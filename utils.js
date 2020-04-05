@@ -4,7 +4,15 @@ const path = require('path')
 const jsyaml = require('js-yaml')
 const fsLoader = require('ks-file-loader').default
 
-const formatTime = function (t, str) {
+const formatTime = function (time, str) {
+  var t = time
+  if(!(time instanceof Date)) {
+    try {
+      t = new Date(time)
+    } catch(err) {
+      throw err
+    }
+  }
   var obj = {
     yyyyyyyy: t.getFullYear(),
     yy: t.getFullYear(),
@@ -48,13 +56,14 @@ const addPropertys = function(data, stringOrFn, over) {
     } else if (value instanceof Object) {
       for(let key in value) {
         if (!config.hasOwnProperty(key)) {
-          contents.push(value[key] + '')
+          contents.push(key + ': ' + value[key] + '')
         } else if(over) {
-          contents.push(value[key] + '')
+          contents.push(key + ': ' + value[key] + '')
         }
       }
     }
-    return addContent(data, '\n' + contents.join('\n') + '\n')
+    let content = (contents.join('\n')).replace(/\n+/g, '\n')
+    return addContent(data, content ? content + '\n' : '')
   }
   return data
 }
@@ -88,9 +97,9 @@ const parseConfig = function (yaml, stats) {
       return config
     }
     console.log(config)
-    throw (new Error('配置信息读取失败!'))
+    throw new Error('配置信息读取失败!')
   } catch (err) {
-    throw (new Error(err))
+    throw new Error(err)
   }
 }
 const mkdirsSync = function (dir) {
