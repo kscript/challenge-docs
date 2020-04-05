@@ -3,24 +3,58 @@ const fs = require('fs')
 const path = require('path')
 const jsyaml = require('js-yaml')
 const fsLoader = require('ks-file-loader').default
-const setTime = function(stats, data, done) {
+
+const formatTime = function (t, str) {
+  var obj = {
+    yyyyyyyy: t.getFullYear(),
+    yy: t.getFullYear(),
+    MM: t.getMonth() + 1,
+    dd: t.getDate(),
+    HH: t.getHours(),
+    hh: t.getHours() % 12,
+    mm: t.getMinutes(),
+    ss: t.getSeconds(),
+    ww: ['日', '一', '二', '三', '四', '五', '六'][t.getDay()]
+  };
+  return str.replace(/([a-z]+)/ig, function ($1) {
+    return (obj[$1 + $1] === 0 ? '0' : obj[$1 + $1]) || ('0' + obj[$1]).slice(-2);
+  });
+}
+const addProperty = function (data, stringOrFn) {
   const info = extract(data)
   const config = parseConfig(info.yaml)
-  if (config.title && !config.date) {
-    const strs = (' ' + data).split('---')
-    if (strs.length > 2) {
-      const t = new Date(stats.birthtime)
-      strs[1] = strs[1] + '\ndate: ' + ([
-        t.getFullYear(),
-        ('0' + (t.getMonth() + 1)).slice(-2),
-        ('0' + t.getDate()).slice(-2)
-      ].join('-') + ' ' + [
-        ('0' + t.getHours()).slice(-2),
-        ('0' + t.getMinutes()).slice(-2),
-        ('0' + t.getSeconds()).slice(-2),
-      ].join(':')) + '\n'
-      return strs.join('---').slice(1)
+  if (config.title) {
+    const value = typeof stringOrFn === 'function' ? stringOrFn() : stringOrFn
+    return addContent(data, value)
+  }
+  return data
+}
+const addContent = function(data, value) {
+  const strs = (' ' + data).split('---')
+  if (strs.length > 2) {
+    strs[1] = strs[1] + (typeof value === 'string' ? value : '')
+    return strs.join('---').slice(1)
+  }
+  return data
+}
+const addPropertys = function(data, stringOrFn, over) {
+  const info = extract(data)
+  const config = parseConfig(info.yaml)
+  if (config.title) {
+    const value = typeof stringOrFn === 'function' ? stringOrFn(config) : stringOrFn
+    const contents = []
+    if (typeof value === 'string') {
+      contents.push(value)
+    } else if (value instanceof Object) {
+      for(let key in value) {
+        if (!config.hasOwnProperty(key)) {
+          contents.push(value[key] + '')
+        } else if(over) {
+          contents.push(value[key] + '')
+        }
+      }
     }
+    return addContent(data, '\n' + contents.join('\n') + '\n')
   }
   return data
 }
@@ -70,6 +104,14 @@ const mkdirsSync = function (dir) {
     }
   }
 }
+const writeFile = function(filePath) {
+  mkdirsSync(path.parse(filePath).dir)
+  fs.writeFile.apply(fs, arguments)
+}
+const writeFileSync = function(filePath) {
+  mkdirsSync(path.parse(filePath).dir)
+  fs.writeFileSync.apply(fs, arguments)
+}
 const deleteFolder = function (path) {
   let files = []
   if (fs.existsSync(path)) {
@@ -86,11 +128,15 @@ const deleteFolder = function (path) {
   }
 }
 module.exports = {
+  fsLoader,
   unique,
-  setTime,
+  formatTime,
   extract,
   parseConfig,
   mkdirsSync,
+  writeFile,
+  writeFileSync,
   deleteFolder,
+  addPropertys,
   getOutputPath
 }

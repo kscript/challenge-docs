@@ -1,6 +1,4 @@
-const fs = require('fs')
 const path = require('path')
-const fsLoader = require('ks-file-loader').default
 const utils = require('./utils')
 const conf = {
   input: './public/',
@@ -8,6 +6,7 @@ const conf = {
   // 部署路径应为输出路径的子集
   local_dir: 'dist',
   tagsNum: 5,
+  pageSize: 25,
   sort: {
     key: 'birthtimeMs',
     desc: true
@@ -65,22 +64,28 @@ const countSort = function (list) {
   })
 }
 const writeConfig = function (dirname) {
+  try{
   let categories = []
   let basePath = path.join(conf.output, dirname)
   Object.keys(keys.categories).map(function (item) {
     categories.push([item, countSort(keys.categories[item]).slice(0, conf.tagsNum).join()])
   })
-  fs.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
-  fs.writeFileSync(path.join(basePath, 'list.json'), JSON.stringify(cached.map(function(item){
-    return sliceListInfo({}, item, conf)
+  utils.writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
+  utils.writeFileSync(path.join(basePath, 'list.json'), JSON.stringify(cached.map(function(item, index){
+    return sliceListInfo({
+    }, item, conf)
   }), null, 2))
   Object.keys(map.categories).map(function (key) {
-    let tags = map.categories[key]
-    let res = tags.map(function (item) {
-      return sliceTagInfo({}, item, conf)
+    let category = map.categories[key]
+    let res = category.map(function (item, index) {
+      return sliceTagInfo({
+        pageno: ~~(index / conf.pageSize + 1)
+      }, item, conf)
     })
-    fs.writeFileSync(path.join(basePath, key + '.json'), JSON.stringify(res, null, 2))
-  })
+    utils.writeFileSync(path.join(basePath, key, 'category.json'), JSON.stringify(res, null, 2))
+  })}catch(e) {
+    console.log(e)
+  }
 }
 const sliceInfo = function (info, file, conf) {
   return Object.assign({}, {
@@ -100,13 +105,14 @@ const sliceListInfo = function (info, file, conf) {
 }
 
 const build = function (done) {
+  const menu = []
   utils.deleteFolder(conf.output)
   utils.mkdirsSync(conf.output)
   // 第一层的子目录, 是与项目对应的类目
   // 当然, 这一层还可能有别的文件
   // 如果是目录, 整理该类目下的信息
   // 如果是文件, 直接复制到相应的输出目录
-  fsLoader({
+  utils.fsLoader({
     path: conf.input,
     deep: false,
     showDir: true,
@@ -114,14 +120,15 @@ const build = function (done) {
     loader(stats, data, done) {
       if (stats.type === 'file') {
         let outputPath = utils.getOutputPath(stats.path, conf.input, conf.output)
-        fs.writeFile(outputPath, data, done)
+        utils.writeFile(outputPath, data, done)
         return false
       } else
-        if (stats.type === 'dir') {
+      if (stats.type === 'dir') {
           let dirname = stats.name
+          menu.push(dirname)
           utils.mkdirsSync(path.join(conf.output, dirname))
           resetProperty()
-          fsLoader({
+          utils.fsLoader({
             path: stats.path,
             mode: 'DFS',
             deep: true,
@@ -135,9 +142,15 @@ const build = function (done) {
               } else
                 if (stats.type === 'file') {
                   utils.mkdirsSync(path.parse(outputPath).dir)
-                  data = utils.setTime(stats, data)
-                  
-                  fs.writeFile(outputPath, data, function () {
+                  data = utils.addPropertys(data, function(config) {
+                    if(config.date) {
+                      return {}
+                    }
+                    return {
+                      date: utils.formatTime(stats.birthtime, 'yyyy-MM-dd hh:mm:ss')
+                    }
+                  })
+                  utils.writeFile(outputPath, data, function () {
                     if (ext === '.md') {
                       let info = utils.extract(data)
                       let config = utils.parseConfig(info.yaml, stats)
@@ -166,6 +179,7 @@ const build = function (done) {
         }
     },
     done() {
+      utils.writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
       typeof done === 'function' && done()
       console.log("执行完毕")
     }
