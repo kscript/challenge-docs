@@ -9,6 +9,8 @@ const conf = {
   pageSize: 25,
   sort: {
     key: 'birthtimeMs',
+    // 手动优先 (md文件的date)
+    manual: true,
     desc: true
   }
 }
@@ -89,7 +91,7 @@ const writeConfig = function (dirname) {
 }
 const sliceInfo = function (info, file, conf) {
   return Object.assign({}, {
-    time: file.config.date,
+    time: utils.formatTime(file.config.date, 'yyyy-MM-dd hh:mm:ss'),
     sid: file.config.sid,
     title: file.config.title || file.stats.name,
     path: utils.getOutputPath(file.stats.path, conf.input, conf.output).slice(path.join(conf.local_dir).length)
@@ -178,6 +180,9 @@ const build = function (done) {
             },
             done: function () {
               countInfo(cached.sort(function (a, b) {
+                if (conf.sort.manual && a.config.date && b.config.date) {
+                  return (a.config.date - b.config.date) * (conf.sort.desc ? -1 : 1)
+                }
                 return (a.stats[conf.sort.key] - b.stats[conf.sort.key]) * (conf.sort.desc ? -1 : 1)
               }))
               writeConfig(dirname)
@@ -192,8 +197,8 @@ const build = function (done) {
       utils.writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
       typeof done === 'function' && done()
       console.log("执行完毕")
-      if (edit) {
-        console.log("部分md文件未设置sid或date属性, 已自动写入. 该脚本如果是通过pre-commit钩子触发, 可能需要重新add")
+      if (edit && process.argv.length > 2) {
+        console.log("部分md文件未设置sid或date属性, 已自动写入, 可能需要重新add")
         process.exit(1)
       }
     }

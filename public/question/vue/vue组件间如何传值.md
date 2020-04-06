@@ -38,7 +38,7 @@ new Vue({
 - eventBus, 将一个公共的Vue实例作为媒介, 按需引用或者挂载到Vue原型上
 
 - Vuex 一个vue项目的状态管理器
-``` js
+``` javascript
 // Vuex
 new Vuex.Store({
   getters: {

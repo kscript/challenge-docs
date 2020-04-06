@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node .",
-    "precommit": "node .",
+    "precommit": "node . --mode=hooks",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
