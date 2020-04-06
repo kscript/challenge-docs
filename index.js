@@ -192,8 +192,8 @@ const build = function (done) {
       utils.writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
       typeof done === 'function' && done()
       console.log("执行完毕")
-      if (edit) {
-        console.log("部分md文件未设置sid或date属性, 已自动写入. 该脚本如果是通过pre-commit钩子触发, 可能需要重新add")
+      if (edit && process.argv.length > 2) {
+        console.log("部分md文件未设置sid或date属性, 已自动写入, 可能需要重新add")
         process.exit(1)
       }
     }
