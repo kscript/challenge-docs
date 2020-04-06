@@ -24,7 +24,7 @@ sid: js4249f4ke
   * delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
   * has(value)：返回一个布尔值，表示该值是否为Set的成员。
   * clear()：清除所有成员，没有返回值。
-  ``` js
+  ``` javascript
   let set = new Set([NaN, NaN]) // {NaN}
   set.add(+0).add(-0) // {NaN, 0}
   set.size // 2
@@ -47,7 +47,7 @@ sid: js4249f4ke
 
 1. Set的遍历顺序就是插入顺序
 2. Set 与 Array 互转
-``` js
+``` javascript
 let arr = [NaN, 0]
 // Array 转 Set
 let set = new Set(arr)
