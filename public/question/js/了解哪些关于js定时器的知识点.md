@@ -4,6 +4,8 @@ categories:
   - js
 tags: 
   - 定时器
+sid: k8msogyiqe
+date: 20-04-05 04:39:27
 ---
 在js中有两种定时器:
 - setTimeout
