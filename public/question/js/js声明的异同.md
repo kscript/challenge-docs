@@ -19,11 +19,11 @@ date: 20-04-06 03:08:00
 
 ## 声明提升案例
 不声明直接使用会报错
-``` js
+``` javascript
 console.log(a) // 报错 ReferenceError
 ```
 声明虽然在后, 但不会报错
-``` js
+``` javascript
   console.log(a) // undefined
   var a = 1
   console.log(a) // 1
@@ -36,13 +36,13 @@ console.log(a) // 报错 ReferenceError
 ```
 
 ## 暂时性死区案例
-``` js
+``` javascript
 console.log(1) // 报错 ReferenceError
 let a = 1
 ```
 
 ## const声明常量值为引用类型案例
-``` js
+``` javascript
 const a = {}
 a.name = 'b' // 没有修改引用地址, 不会报错
 a = {} // 报错 SyntaxError

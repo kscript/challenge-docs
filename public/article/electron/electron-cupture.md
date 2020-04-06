@@ -25,7 +25,7 @@ sid: k8hqqddcl9
 ### 实现
 由于 [win.capturePage](https://electronjs.org/docs/all#wincapturepagerect-callback) / [contents.capturePage](https://electronjs.org/docs/all#contentscapturepagerect-callback) 是主进程的api, 而我们是在渲染进程里才会使用, 因此我们需要用到 [ipcMain](https://electronjs.org/docs/api/ipc-main) 和 [ipcRenderer](https://electronjs.org/docs/api/ipc-renderer) 来进行通信
 
-``` js
+``` javascript
 // 主进程入口文件
 import { BrowserWindow, ipcMain } from 'electron'
 let win = new BrowserWindow()
