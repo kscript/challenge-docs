@@ -3,8 +3,8 @@ title: 解决vue源码在win10上不能编译
 categories: vue
 tags:
   - 源码
-sid: k8r6bcgfcd
 date: 2020-04-08 06:12:14
+sid: k8r6bcgfcd
 ---
 vue3在前端界沸沸扬扬了许久, 再有一段时间应该就能正式发布了, 现在正是读vue3.0或者vue2.+的时候, 前者还是雏形, 后者已基本尘埃落定, 所以近期准备重读下vue2.  
 vue项目clone下来自己编译了一下, 遇到了下面描述的这个问题:  
