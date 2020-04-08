@@ -1,2 +1,3 @@
 keep_files: [".git", ".svn", ".md"]
 markdown_ext: ""
+exclude: ["/**"]
