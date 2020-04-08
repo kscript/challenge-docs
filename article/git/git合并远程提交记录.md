@@ -1,9 +1,10 @@
 ---
 title: git合并远程提交记录
 date: 2018-12-22 17:57:44
+categories: git
 tags: 
   - git
-categories: git
+  - 合并
 description: git进阶用法, 使用 git + vim 命令, 对远程提交记录进行操作
 sid: jpzro1q8fn
 ---

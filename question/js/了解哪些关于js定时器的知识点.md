@@ -10,6 +10,7 @@ date: 20-04-05 04:39:27
 在js中有两种定时器:
 - setTimeout
 - setInterval
+
 两者的参数及返回值形式相同, setTimeout创建的定时器是一次性的, 而setInterval创建的定时器则会周而复始地执行.  
 setTimeout和setInterval之间可以互相转换, **但在实际使用中, 推荐使用setTimeout替代setInterval**, 原因如下:  
 - setTimeout有更好的参数控制粒度, setInterVal一旦确定不能更改  

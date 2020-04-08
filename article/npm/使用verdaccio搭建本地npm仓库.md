@@ -1,14 +1,14 @@
 ---
 title: 使用verdaccio搭建本地npm仓库
-date: 2018-12-26 18:23:10
 copyright: true
 author: 
 home: 
 url: 
+categories: npm
 tags: 
   - npm
-categories: npm
 description: 使用 verdaccio 搭建本地 npm 仓库
+date: 2018-12-26 18:23:10
 sid: jq5ic5v4o5
 ---
 ### 前言
