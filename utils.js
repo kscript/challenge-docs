@@ -85,7 +85,7 @@ const getOutputPath = function (currentPath, input, output) {
 const extract = function (content, type) {
   const strs = (' ' + content).split('---')
   const resObj = {
-    markdown: strs.slice(0, 1).concat(strs.slice(2)).join('').slice(1),
+    markdown: strs.slice(0, 1).concat(strs.slice(2).join('---')).join('').slice(1),
     yaml: strs[1] || ''
   }
   return type ? resObj[type] || resObj.markdown : resObj
