@@ -155,7 +155,7 @@ const build = function (done) {
                       sid: timestamp.toString(36) + Math.floor(Math.random() * 1e3 + 36).toString(36)
                     }
                     return Object.assign(base, config.date ? {} : {
-                      date: utils.formatTime(stats.birthtime, 'yy-MM-dd hh:mm:ss')
+                      date: utils.formatTime(stats.birthtime, 'yyyy-MM-dd hh:mm:ss')
                     })
                   })
                   if (newData !== data) {
