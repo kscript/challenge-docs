@@ -5,7 +5,7 @@ categories:
 tags: 
   - 定时器
 sid: k8msogyiqe
-date: 20-04-05 04:39:27
+date: 2020-04-06 08:53:04
 ---
 在js中有两种定时器:
 - setTimeout
@@ -13,9 +13,9 @@ date: 20-04-05 04:39:27
 
 两者的参数及返回值形式相同, setTimeout创建的定时器是一次性的, 而setInterval创建的定时器则会周而复始地执行.  
 setTimeout和setInterval之间可以互相转换, **但在实际使用中, 推荐使用setTimeout替代setInterval**, 原因如下:  
-- setTimeout有更好的参数控制粒度, setInterVal一旦确定不能更改  
-- setTimeout会因为线程被阻塞而卡顿, 但不会'掉帧', setInterVal会因为线程阻塞而卡顿, 进而'掉帧'  
-- setTimeout替代setInterVal后的写法, 不会比setInterval复杂, 并且通常不需要外部变量参与  
+- setTimeout有更好的参数控制粒度, setInterval一旦确定不能更改  
+- setTimeout会因为线程被阻塞而卡顿, 但不会'掉帧', setInterval会因为线程阻塞而卡顿, 进而'掉帧'  
+- setTimeout替代setInterval后的写法, 不会比setInterval复杂, 并且通常不需要外部变量参与  
 
 ```
 // setInterval 不能很方便地改变其初始参数的值 (即使仿照setTimeout来写, 也得多一步清除)
@@ -38,4 +38,5 @@ setTimeout(function clock(count){
 
 ```
 
-js定时器属于宏任务, 在调用栈所有微任务执行完毕才执行
+- js定时器的参数timeout是指延时timeout毫秒后触发, 实际的时间间隔 >= t
+- js定时器属于宏任务, 在调用栈所有微任务执行完毕才执行
