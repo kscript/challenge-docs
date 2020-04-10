@@ -5,7 +5,7 @@ categories:
 tags: 
   - 声明
 sid: k8o4upvafv
-date: 20-04-06 03:08:00
+date: 2020-04-06 08:53:04
 ---
 在js中var、let、const都是用于声明变量的语句, 三者的区别在于:
 - var 声明一个变量，可同时将其初始化为一个值.  
