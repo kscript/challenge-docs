@@ -38,5 +38,5 @@ setTimeout(function clock(count){
 
 ```
 
-- js定时器的参数timeout是指延时timeout毫秒后触发, 实际的时间间隔 >= t
+- js定时器的参数timeout是指延时timeout毫秒后触发, 实际的时间间隔 >= timeout
 - js定时器属于宏任务, 在调用栈所有微任务执行完毕才执行
