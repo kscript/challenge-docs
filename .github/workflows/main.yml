@@ -11,4 +11,4 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.gitee }}
         with:
           source-repo: 'git@github.com:kscript/challenge-docs.git'
-          destination-repo: 'git@bitbucket.org:kscript/challenge-docs.git'
+          destination-repo: 'git@gitee.com:kscript/challenge-docs.git'
