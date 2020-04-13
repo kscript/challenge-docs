@@ -6,10 +6,10 @@ const fsLoader = require('ks-file-loader').default
 
 const formatTime = function (time, str) {
   var t = time
-  if(!(time instanceof Date)) {
+  if (!(time instanceof Date)) {
     try {
       t = new Date(time)
-    } catch(err) {
+    } catch (err) {
       throw err
     }
   }
@@ -37,7 +37,7 @@ const addProperty = function (data, stringOrFn) {
   }
   return data
 }
-const addContent = function(data, value) {
+const addContent = function (data, value) {
   const strs = (' ' + data).split('---')
   if (strs.length > 2) {
     strs[1] = strs[1] + (typeof value === 'string' ? value : '')
@@ -45,7 +45,7 @@ const addContent = function(data, value) {
   }
   return data
 }
-const addPropertys = function(data, stringOrFn, over) {
+const addPropertys = function (data, stringOrFn, over = false) {
   const info = extract(data)
   const config = parseConfig(info.yaml)
   if (config.title) {
@@ -54,10 +54,10 @@ const addPropertys = function(data, stringOrFn, over) {
     if (typeof value === 'string') {
       contents.push(value)
     } else if (value instanceof Object) {
-      for(let key in value) {
+      for (let key in value) {
         if (!config.hasOwnProperty(key)) {
           contents.push(key + ': ' + value[key] + '')
-        } else if(over) {
+        } else if (over) {
           contents.push(key + ': ' + value[key] + '')
         }
       }
@@ -82,7 +82,7 @@ const getOutputPath = function (currentPath, input, output) {
   let relativePath = path.join(currentPath).slice(path.join(input).length)
   return path.join(output, relativePath)
 }
-const extract = function (content, type) {
+const extract = function (content: string = '', type?: string) {
   const strs = (' ' + content).split('---')
   const resObj = {
     markdown: strs.slice(0, 1).concat(strs.slice(2).join('---')).join('').slice(1),
@@ -90,7 +90,7 @@ const extract = function (content, type) {
   }
   return type ? resObj[type] || resObj.markdown : resObj
 }
-const parseConfig = function (yaml, stats) {
+const parseConfig = function (yaml) {
   try {
     let config = jsyaml.load(yaml) || {}
     if (config instanceof Object) {
@@ -113,20 +113,22 @@ const mkdirsSync = function (dir) {
     }
   }
 }
-const writeFile = function(filePath) {
+const writeFile = function (...args) {
+  const [filePath] = args
   mkdirsSync(path.parse(filePath).dir)
   fs.writeFile.apply(fs, arguments)
 }
-const writeFileSync = function(filePath) {
+const writeFileSync = function (...args) {
+  const [filePath] = args
   mkdirsSync(path.parse(filePath).dir)
-  fs.writeFileSync.apply(fs, arguments)
+  fs.writeFileSync.apply(fs, args)
 }
 const deleteFolder = function (path) {
   let files = []
   if (fs.existsSync(path)) {
     files = fs.readdirSync(path)
     files.forEach(function (file, index) {
-      let curPath = path + "/" + file
+      let curPath = path + '/' + file
       if (fs.statSync(curPath).isDirectory()) {
         deleteFolder(curPath)
       } else {
@@ -136,7 +138,7 @@ const deleteFolder = function (path) {
     fs.rmdirSync(path)
   }
 }
-module.exports = {
+export default {
   fsLoader,
   unique,
   formatTime,
