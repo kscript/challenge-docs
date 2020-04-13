@@ -8,5 +8,14 @@
     "key": "birthtimeMs",
     "manual": true,
     "desc": true
-  }
+  },
+  "plugins": [
+    [
+      "./plugins/preset",
+      {
+        "edit": false
+      }
+    ],
+    "./plugins/base"
+  ]
 }
