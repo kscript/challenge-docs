@@ -1,10 +1,9 @@
-
 const fs = require('fs')
 const path = require('path')
 const jsyaml = require('js-yaml')
 const fsLoader = require('ks-file-loader').default
 
-const formatTime = function (time, str) {
+const formatTime = (time, str) => {
   var t = time
   if (!(time instanceof Date)) {
     try {
@@ -28,7 +27,7 @@ const formatTime = function (time, str) {
     return (obj[$1 + $1] === 0 ? '0' : obj[$1 + $1]) || ('0' + obj[$1]).slice(-2);
   });
 }
-const addProperty = function (data, stringOrFn) {
+const addProperty = (data, stringOrFn) => {
   const info = extract(data)
   const config = parseConfig(info.yaml)
   if (config.title) {
@@ -37,7 +36,7 @@ const addProperty = function (data, stringOrFn) {
   }
   return data
 }
-const addContent = function (data, value) {
+const addContent = (data, value) => {
   const strs = (' ' + data).split('---')
   if (strs.length > 2) {
     strs[1] = strs[1] + (typeof value === 'string' ? value : '')
@@ -45,7 +44,7 @@ const addContent = function (data, value) {
   }
   return data
 }
-const addPropertys = function (data, stringOrFn, over = false) {
+const addPropertys = (data, stringOrFn, over = false) => {
   const info = extract(data)
   const config = parseConfig(info.yaml)
   if (config.title) {
@@ -67,7 +66,7 @@ const addPropertys = function (data, stringOrFn, over = false) {
   }
   return data
 }
-const unique = function (ary) {
+const unique = (ary) => {
   var obj = {}
   var newAry = []
   ary.map(function (item) {
@@ -78,11 +77,11 @@ const unique = function (ary) {
   })
   return newAry
 }
-const getOutputPath = function (currentPath, input, output) {
+const getOutputPath = (currentPath, input, output) => {
   let relativePath = path.join(currentPath).slice(path.join(input).length)
   return path.join(output, relativePath)
 }
-const extract = function (content: string = '', type?: string) {
+const extract = (content: string = '', type?: string) => {
   const strs = (' ' + content).split('---')
   const resObj = {
     markdown: strs.slice(0, 1).concat(strs.slice(2).join('---')).join('').slice(1),
@@ -90,7 +89,7 @@ const extract = function (content: string = '', type?: string) {
   }
   return type ? resObj[type] || resObj.markdown : resObj
 }
-const parseConfig = function (yaml) {
+const parseConfig = (yaml) => {
   try {
     let config = jsyaml.load(yaml) || {}
     if (config instanceof Object) {
@@ -102,7 +101,7 @@ const parseConfig = function (yaml) {
     throw new Error(err)
   }
 }
-const mkdirsSync = function (dir) {
+const mkdirsSync = (dir) => {
   dir = path.join(dir)
   if (fs.existsSync(dir)) {
     return true
@@ -113,17 +112,17 @@ const mkdirsSync = function (dir) {
     }
   }
 }
-const writeFile = function (...args) {
+const writeFile = (...args) => {
   const [filePath] = args
   mkdirsSync(path.parse(filePath).dir)
-  fs.writeFile.apply(fs, arguments)
+  fs.writeFile.apply(fs, args)
 }
-const writeFileSync = function (...args) {
+const writeFileSync = (...args) => {
   const [filePath] = args
   mkdirsSync(path.parse(filePath).dir)
   fs.writeFileSync.apply(fs, args)
 }
-const deleteFolder = function (path) {
+const deleteFolder = (path) => {
   let files = []
   if (fs.existsSync(path)) {
     files = fs.readdirSync(path)

@@ -16,7 +16,7 @@ const {
 const map: map = {}
 const keys: map = {}
 const cached: anyObject[] = []
-const conf = {
+const conf: anyObject = {
   input: './public/',
   output: './dist/',
   // 部署路径应为输出路径的子集
@@ -34,6 +34,55 @@ const conf = {
     // 是否采用降序
     desc: true
   }
+}
+let plugins = []
+let context = {
+  old: {},
+  last: {}
+}
+
+const loadPlugins = (plugins, context, conf) => {
+  return plugins.map((plugin) => {
+    let props
+    if (typeof plugin === 'string') {
+      props = [plugin, {}]
+    } else {
+      props = plugin
+    }
+    try {
+      const info = require(props[0])
+      if (info instanceof Object && typeof info.apply === 'function') {
+        let options = typeof props[1] === 'function' ? props[1]() : props[1]
+        options = options instanceof Object ? options : {}
+        return [info.apply(context, options, conf, info), options, info]
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }).filter(item => item)
+}
+const execPlugins = function(fn, ...rest) {
+  let result
+  plugins.forEach(([plugin, options, info]) => {
+    if (typeof plugin[fn] === 'function') {
+      let res = plugin[fn](...rest)
+      result = res === void 0 ? result : res
+      if (result instanceof Object) {
+        context.old = context.last
+        context.last = {
+          name: info.name,
+          hook: fn,
+          result
+        }
+        if (info.name && info.record) {
+          let name = '_' + info.name
+          context[name] = context[name] || {}
+          context[name][fn] = result
+        }
+      }
+    }
+  })
+  return result
 }
 const resetProperty = function () {
   map.tags = {}
@@ -128,37 +177,34 @@ const sliceListInfo = function (info, file, conf) {
     category: file.config.categories instanceof Array ? file.config.categories : [file.config.categories]
   })
 }
-
+const proxyDone = (doneFn) => {
+  let doneCount = 0
+  return () => {
+    if (doneCount++) {
+      console.log('done函数不应该被多次调用')
+    } else {
+      doneFn()
+    }
+  }
+}
 const handleBlock = function (dir, done) {
-  let edit = false
   fsLoader({
     path: dir,
     mode: 'DFS',
     deep: true,
     showDir: true,
     readFile: true,
-    loader: function (stats, data, done) {
+    loader: function (stats, data, doneFn) {
+      const done = proxyDone(doneFn)
+      execPlugins('handleBlockRoot', stats, data, done)
       let ext = path.parse(stats.path).ext
       let outputPath = getOutputPath(stats.path, conf.input, conf.output)
       if (stats.type === 'dir') {
         mkdirsSync(outputPath)
       } else
         if (stats.type === 'file') {
-          mkdirsSync(path.parse(outputPath).dir)
-          let newData = addPropertys(data, function (config) {
-            if (!edit && (!config.sid || !config.date)) {
-              edit = true
-            }
-            let timestamp = +new Date(config.date || stats.birthtime)
-            let base = config.sid ? {} : {
-              sid: timestamp.toString(36) + Math.floor(Math.random() * 1e3 + 36).toString(36)
-            }
-            return Object.assign(base, config.date ? {} : {
-              date: formatTime(stats.birthtime, 'yyyy-MM-dd hh:mm:ss')
-            })
-          })
-          if (newData !== data) {
-            writeFileSync(stats.path, newData)
+          let newData = execPlugins('handleBlockFile', stats, data, done)
+          if (typeof newData === 'string') {
             data = newData
           }
           writeFile(outputPath, data, function () {
@@ -177,14 +223,14 @@ const handleBlock = function (dir, done) {
           return false
         }
     },
-    done: function () {
-      done(edit)
-    }
+    done
   })
 }
-const build = function (done?) {
-  let edit = false
+const build = function (config: anyObject = {}, done?) {
+  Object.assign(conf, config)
   const menu = []
+  plugins = loadPlugins(conf.plugins, context, conf)
+  execPlugins('build')
   deleteFolder(conf.output)
   mkdirsSync(conf.output)
   // 第一层的子目录, 是与项目对应的类目
@@ -196,7 +242,9 @@ const build = function (done?) {
     deep: false,
     showDir: true,
     readFile: true,
-    loader(stats, data, done) {
+    loader(stats, data, doneFn) {
+      const done = proxyDone(doneFn)
+      execPlugins('handleRoot', stats, data, done)
       if (stats.type === 'file') {
         let outputPath = getOutputPath(stats.path, conf.input, conf.output)
         writeFile(outputPath, data, done)
@@ -206,11 +254,10 @@ const build = function (done?) {
           let dirname = stats.name
           menu.push(dirname)
           mkdirsSync(path.join(conf.output, dirname))
+          execPlugins('handleBlock', stats, data, done)
           resetProperty()
-          handleBlock(stats.path, function (isEdit) {
-            if (!edit) {
-              edit = isEdit
-            }
+          handleBlock(stats.path, function () {
+            execPlugins('handleBlockEnd', stats, data, done)
             const manual = conf.sort.key === 'birthtimeMs' && conf.sort.manual
             countInfo(cached.sort(function (a, b) {
               if (manual && a.config.date && b.config.date) {
@@ -228,11 +275,8 @@ const build = function (done?) {
     done() {
       writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
       typeof done === 'function' && done()
+      execPlugins('buildEnd')
       console.log('执行完毕')
-      if (edit && process.argv.length > 2) {
-        console.log('部分md文件未设置sid或date属性, 已自动写入, 可能需要重新add')
-        process.exit(1)
-      }
     }
   })
 }
