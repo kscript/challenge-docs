@@ -24,13 +24,13 @@ const apply = function (context, options, conf) {
   return {
     build() {
     },
-    handleRoot(stats, data, done) {
+    handleRoot(stats, data) {
     },
-    handleBlock(stats, data, done) {
+    handleBlock(stats, data) {
     },
-    handleBlockRoot(stats, data, done) {
+    handleBlockRoot(stats, data) {
     },
-    handleBlockFile(stats, data, done) {
+    handleBlockFile(stats, data) {
       let ext = path.parse(stats.path).ext
       let outputPath = getOutputPath(stats.path, conf.input, conf.output)
       mkdirsSync(path.parse(outputPath).dir)
@@ -52,7 +52,7 @@ const apply = function (context, options, conf) {
         return data
       }
     },
-    handleBlockEnd(stats, data, done) {
+    handleBlockEnd(stats, data) {
     },
     buildEnd() {
       if (edit && process.argv.length > 2) {
