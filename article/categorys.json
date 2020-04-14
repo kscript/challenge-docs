@@ -1,6 +1,26 @@
 [
   [
     "vue",
-    "源码"
+    "源码,vue"
+  ],
+  [
+    "git",
+    "git,合并"
+  ],
+  [
+    "electron",
+    "js,electron"
+  ],
+  [
+    "css",
+    "css"
+  ],
+  [
+    "js",
+    "js,es6"
+  ],
+  [
+    "npm",
+    "npm"
   ]
 ]
