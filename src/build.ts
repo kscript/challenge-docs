@@ -97,17 +97,19 @@ const handleBlock = (dir, config, done) => {
     deep: true,
     showDir: true,
     readFile: true,
-    async loader(stats, data, done) {
-      const outputPath = getOutputPath(stats.path, config.input, config.output)
-      await mutationHook('handleBlockRoot', stats, data)
-      if (stats.type === 'dir') {
-        mkdirsSync(outputPath)
-      } else
-        if (stats.type === 'file') {
-          data = await mutationHook('handleBlockFile', stats, data)
-          writeFile(outputPath, data, done)
-          return false
-        }
+    loader(stats, data, done) {
+      return new Promise(async (resolve) => {
+        const outputPath = getOutputPath(stats.path, config.input, config.output)
+        await mutationHook('handleBlockRoot', stats, data)
+        if (stats.type === 'dir') {
+          mkdirsSync(outputPath)
+          resolve()
+        } else
+          if (stats.type === 'file') {
+            data = await mutationHook('handleBlockFile', stats, data)
+            writeFile(outputPath, data, resolve)
+          }
+      })
     },
     done
   })
@@ -128,20 +130,21 @@ const build = async (_config: anyObject = {}, done?:() => void) => {
     deep: false,
     showDir: true,
     readFile: true,
-    async loader(stats, data, done) {
-      data = await mutationHook('handleRoot', stats, data)
-      if (stats.type === 'file') {
-        writeFile(getOutputPath(stats.path, config.input, config.output), data, done)
-      } else
-        if (stats.type === 'dir') {
-          mkdirsSync(path.join(config.output, stats.name))
-          data = await mutationHook('handleBlock', stats, data)
-          handleBlock(stats.path, config, async () => {
-            await mutationHook('handleBlockEnd', stats, data)
-            done()
-          })
-        }
-      return false
+    loader(stats, data, done) {
+      return new Promise(async (resolve) => {
+        data = await mutationHook('handleRoot', stats, data)
+        if (stats.type === 'file') {
+          writeFile(getOutputPath(stats.path, config.input, config.output), data, resolve)
+        } else
+          if (stats.type === 'dir') {
+            mkdirsSync(path.join(config.output, stats.name))
+            data = await mutationHook('handleBlock', stats, data)
+            handleBlock(stats.path, config, async () => {
+              await mutationHook('handleBlockEnd', stats, data)
+              resolve()
+            })
+          }
+      })
     },
     async done() {
       typeof done === 'function' && done()

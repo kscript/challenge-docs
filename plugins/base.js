@@ -25,13 +25,12 @@ const conf = {}
 const resetProperty = function () {
   map.tags = {}
   map.categories = {}
-  Object.keys(map).forEach(function (item) {
-    keys[item] = {}
-  })
+  keys.tags = {}
+  keys.categories = {}
   cached.splice(0)
 }
-const countInfo = function (cached) {
-  cached.map(function (file) {
+const countInfo = function (files) {
+  files.map(function (file) {
     let categories = countVal(map, 'categories', file)
     let tags = countVal(map, 'tags', file)
     categories.map(function (c) {
@@ -70,7 +69,7 @@ const countSort = function (list) {
   })
 }
 
-const writeConfig = function (dirname) {
+const writeConfig = function (files, dirname) {
   try {
     let categories = []
     let basePath = path.join(conf.output, dirname)
@@ -80,7 +79,7 @@ const writeConfig = function (dirname) {
     writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
     writeFileSync(path.join(conf.output, 'info.json'), JSON.stringify(conf, null, 2))
     
-    writeFileSync(path.join(basePath, 'timeline.json'), JSON.stringify(cached.map(function (item, index) {
+    writeFileSync(path.join(basePath, 'timeline.json'), JSON.stringify(files.map(function (item, index) {
       return sliceListInfo({
       }, item, conf)
     }), null, 2))
@@ -128,10 +127,9 @@ const apply = function (context, options, config) {
         menu.push(stats.name)
       }
     },
-    handleBlock(stats, data) {
-      resetProperty()
-    },
     handleBlockRoot(stats, data) {
+    },
+    handleBlock(stats, data) {
       resetProperty()
     },
     handleBlockFile(stats, data) {
@@ -155,7 +153,7 @@ const apply = function (context, options, config) {
         }
         return (a.stats[conf.sort.key] - b.stats[conf.sort.key]) * (conf.sort.desc ? -1 : 1)
       }))
-      writeConfig(stats.name)
+      writeConfig(cached, stats.name)
       console.log(stats.name + ' 类目处理完成')
     },
     buildEnd() {
