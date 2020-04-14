@@ -17,7 +17,7 @@ const config: anyObject = {
   tagsNum: 5,
   // 分页
   page: {
-    siez: 10
+    size: 10
   },
   sort: {
     key: 'birthtimeMs',

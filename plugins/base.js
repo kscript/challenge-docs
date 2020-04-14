@@ -89,7 +89,7 @@ const writeConfig = function (dirname) {
       let category = map.categories[key]
       let res = category.map(function (item, index) {
         return sliceTagInfo({
-          pageno: ~~(index / conf.pageSize + 1)
+          pageno: ~~(index / conf.page.size + 1)
         }, item, conf)
       })
       writeFileSync(path.join(basePath, key, 'category.json'), JSON.stringify(res, null, 2))
