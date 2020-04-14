@@ -132,6 +132,7 @@ const apply = function (context, options, config) {
       resetProperty()
     },
     handleBlockRoot(stats, data) {
+      resetProperty()
     },
     handleBlockFile(stats, data) {
       let ext = path.parse(stats.path).ext
