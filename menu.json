@@ -1,4 +1,6 @@
-[
-  "article",
-  "question"
-]
+{
+  "data": [
+    "article",
+    "question"
+  ]
+}
