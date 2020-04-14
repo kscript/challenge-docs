@@ -3,7 +3,9 @@
   "output": "./dist/",
   "local_dir": "dist",
   "tagsNum": 5,
-  "pageSize": 25,
+  "page": {
+    "siez": 10
+  },
   "sort": {
     "key": "birthtimeMs",
     "manual": true,
