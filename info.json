@@ -4,7 +4,7 @@
   "local_dir": "dist",
   "tagsNum": 5,
   "page": {
-    "siez": 10
+    "size": 10
   },
   "sort": {
     "key": "birthtimeMs",
