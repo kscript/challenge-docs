@@ -1,10 +1,4 @@
 /// <reference path='./index.d.ts' />
 import build from './build'
-build({
-  plugins: [
-    ['./plugins/preset', {
-      edit: false
-    }],
-    './plugins/base'
-  ]
-})
+// 为了后期通过mock修改配置项, 这里的参数与默认的配置项进行了合并
+build()

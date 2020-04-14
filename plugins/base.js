@@ -71,28 +71,13 @@ const countSort = function (list) {
 
 const writeConfig = function (files, dirname) {
   try {
-    let categories = []
-    let basePath = path.join(conf.output, dirname)
-    Object.keys(keys.categories).map(function (item) {
-      categories.push([item, countSort(keys.categories[item]).slice(0, conf.tagsNum).join()])
-    })
-    writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify(categories, null, 2))
-    writeFileSync(path.join(conf.output, 'info.json'), JSON.stringify(conf, null, 2))
-    
-    writeFileSync(path.join(basePath, 'timeline.json'), JSON.stringify(files.map(function (item, index) {
-      return sliceListInfo({
-      }, item, conf)
-    }), null, 2))
-
-    Object.keys(map.categories).map(function (key) {
-      let category = map.categories[key]
-      let res = category.map(function (item, index) {
-        return sliceTagInfo({
-          pageno: ~~(index / conf.page.size + 1)
-        }, item, conf)
-      })
-      writeFileSync(path.join(basePath, key, 'category.json'), JSON.stringify(res, null, 2))
-    })
+    const basePath = path.join(conf.output, dirname)
+    splitCategorys(files, dirname, basePath)
+    splitCategory(files, dirname, basePath)
+    splitTimeline(files, dirname, basePath)
+    writeFileSync(path.join(conf.output, 'info.json'), JSON.stringify({
+      data: conf
+    }, null, 2))
   } catch (e) {
     console.log(e)
   }
@@ -114,6 +99,66 @@ const sliceListInfo = function (info, file, conf) {
     category: file.config.categories instanceof Array ? file.config.categories : [file.config.categories]
   })
 }
+
+const splitCategorys = function(files, dirname, basePath) {
+  const size = 100 // conf.page.size
+  let categories = []
+  Object.keys(keys.categories).map(function (item) {
+    categories.push([item, countSort(keys.categories[item]).slice(0, conf.tagsNum).join()])
+  })
+  splitList(categories, size, function(pageno, data) {
+    writeFileSync(path.join(basePath, 'categorys.json'), JSON.stringify({
+      total: categories.length,
+      size,
+      pageno,
+      data
+    }, null, 2))
+  })
+}
+const splitCategory = function(files, dirname, basePath) {
+  const size = conf.page.size
+  Object.keys(map.categories).map(function (key) {
+    let category = map.categories[key]
+    let list = category.map(function (item, index) {
+      return sliceTagInfo({
+        pageno: ~~(index / size + 1)
+      }, item, conf)
+    })
+    splitList(list, size, function(pageno, data) {
+      writeFileSync(path.join(basePath, key, 'category_' + pageno + '.json'), JSON.stringify({
+        total: list.length,
+        size,
+        pageno,
+        data
+      }, null, 2))
+    })
+  })
+}
+const splitTimeline = function(files, dirname, basePath) {
+  const size = conf.page.size
+  const list = files.map(function (item, index) {
+    return sliceListInfo({
+      pageno: ~~(index / size + 1)
+    }, item, conf)
+  })
+  splitList(list, size, function(pageno, data) {
+    writeFileSync(path.join(basePath, 'timeline_' + pageno + '.json'), JSON.stringify({
+      total: list.length,
+      size,
+      pageno,
+      data
+    }, null, 2))
+  })
+}
+const splitList = function(list, size, func) {
+  if (Array.isArray(list)) {
+    let index = 0
+    while(index * conf.page.size < list.length) {
+      func(index + 1, list.slice(index * conf.page.size, (index += 1) * conf.page.size))
+    }
+  }
+}
+
 // context 插件的公共环境
 // options 入口文件配置项plugins里定义的配置(最终结果)
 // config 入口文件配置
@@ -157,7 +202,9 @@ const apply = function (context, options, config) {
       console.log(stats.name + ' 类目处理完成')
     },
     buildEnd() {
-      writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify(menu, null, 2))
+      writeFileSync(path.join(conf.output, 'menu.json'), JSON.stringify({
+        data: menu
+      }, null, 2))
     }
   }
 }

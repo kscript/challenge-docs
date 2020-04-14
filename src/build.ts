@@ -1,5 +1,7 @@
 import * as path from 'path'
+import conf from './config'
 import utils from './utils'
+const config: anyObject = Object.assign({}, conf)
 const {
   fsLoader,
   mkdirsSync,
@@ -8,27 +10,6 @@ const {
   getOutputPath
 } = utils
 
-const config: anyObject = {
-  input: './public/',
-  output: './dist/',
-  // 部署路径应为输出路径的子集
-  local_dir: 'dist',
-  // 分类显示标签数
-  tagsNum: 5,
-  // 分页
-  page: {
-    size: 10
-  },
-  sort: {
-    key: 'birthtimeMs',
-    // 由于一些文件是迁移过来的, 根据创建时间排序的话有问题
-    // 因此这些文件的date可能是手动指定的
-    // 手动写入的数据优先
-    manual: true,
-    // 是否采用降序
-    desc: true
-  }
-}
 let plugins = []
 let context = {
   old: {},
