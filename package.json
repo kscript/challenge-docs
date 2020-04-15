@@ -5,8 +5,8 @@
   "scripts": {
     "build:rollup": "rollup -c -i ./src/index.ts -o index.js",
     "build": "npm run build:rollup && node .",
-    "tsc:utils": "tsc --target es5 ./src/utils.ts --outDir ./plugins/",
-    "build:plugin": "npm run build:rollup && npm run tsc:utils && node .",
+    "tsc:utils": "tsc --target es5 ./src/utils.ts --outDir ./loaders/",
+    "build:loader": "npm run build:rollup && npm run tsc:utils && node .",
     "precommit": "npm run build:rollup && node . --mode=hooks",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -10,30 +10,30 @@ const {
   getOutputPath
 } = utils
 
-let plugins = []
+let loaders = []
 let context = {
   old: {},
   last: {}
 }
 
-// plugins数据中支持的类型:
+// loaders数据中支持的类型:
 // - string  插件路径/包名(用于require加载, 路径是相对于项目根目录的)
 // - [string,Object|()=>Object]  插件路径/包名+配置项的一个数组,配置项是函数时,若调用结果不为对象则舍弃掉
 // require进来的如果不是一个提供有apply方法的对象, 则忽略该插件
 
-const loadPlugins = (plugins, context, config) => {
-  if (!Array.isArray(plugins)) {
-    plugins = [plugins]
+const loadLoaders = (loaders, context, config) => {
+  if (!Array.isArray(loaders)) {
+    loaders = [loaders]
   }
-  return plugins.map((props) => {
+  return loaders.map((props) => {
     props = typeof props === 'string' ? [props, {}] : props
     if (Array.isArray(props)) {
       try {
-        const plugin = require(props[0])
-        if (plugin instanceof Object && typeof plugin.apply === 'function') {
+        const loader = require(props[0])
+        if (loader instanceof Object && typeof loader.apply === 'function') {
           let options = typeof props[1] === 'function' ? props[1]() : props[1]
           options = options instanceof Object ? options : {}
-          return [plugin.apply(context, options, config, plugin), options, plugin]
+          return [loader.apply(context, options, config, loader), options, loader]
         }
       } catch (err) {
         console.log(err)
@@ -42,13 +42,14 @@ const loadPlugins = (plugins, context, config) => {
   }).filter(item => item)
 }
 
-const execPlugins = async (fn, ...rest) => {
+const execLoaders = async (fn, ...rest) => {
   let result
-  plugins.forEach(async ([plugin, options, info]) => {
-    if (typeof plugin[fn] === 'function') {
-      let res = await plugin[fn](...rest)
-      result = res === void 0 ? result : res
-      if (result instanceof Object) {
+  let [stats, data] = rest
+  loaders.forEach(async ([loader, options, info]) => {
+    if (typeof loader[fn] === 'function') {
+      let res = await loader[fn](stats, data)
+      if (typeof res === 'string') {
+        result = res
         context.old = context.last
         context.last = {
           name: info.name,
@@ -60,13 +61,14 @@ const execPlugins = async (fn, ...rest) => {
           context[name] = context[name] || {}
           context[name][fn] = result
         }
+        return data = result
       }
     }
   })
   return result
 }
 const mutationHook = async (hook, stats, data) => {
-  return mutationData(await execPlugins(hook, stats, data), data)
+  return mutationData(await execLoaders(hook, stats, data), data)
 }
 const mutationData = (newData, data) => {
   return typeof newData === 'string' ? newData : data
@@ -87,7 +89,13 @@ const handleBlock = (dir, config, done) => {
           resolve()
         } else
           if (stats.type === 'file') {
+            if (/k90k20kaks/.test(data)){
+              console.log(data, 'build1')
+            }
             data = await mutationHook('handleBlockFile', stats, data)
+            if (/k90k20kaks/.test(data)){
+              console.log(data, 'build2')
+            }
             writeFile(outputPath, data, resolve)
           }
       })
@@ -97,8 +105,8 @@ const handleBlock = (dir, config, done) => {
 }
 const build = async (_config: anyObject = {}, done?:() => void) => {
   Object.assign(config, _config)
-  plugins = loadPlugins(config.plugins, context, config)
-  await execPlugins('build')
+  loaders = loadLoaders(config.loaders, context, config)
+  await execLoaders('build')
   deleteFolder(config.output)
   mkdirsSync(config.output)
 
@@ -129,7 +137,7 @@ const build = async (_config: anyObject = {}, done?:() => void) => {
     },
     async done() {
       typeof done === 'function' && done()
-      await execPlugins('buildEnd')
+      await execLoaders('buildEnd')
       console.log('执行完毕')
     }
   })

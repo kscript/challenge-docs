@@ -48,8 +48,8 @@ const apply = function (context, options, conf) {
       })
       if (newData !== data) {
         writeFileSync(stats.path, newData)
-        data = newData
-        return data
+        console.log(newData, 'preset')
+        return newData
       }
     },
     handleBlockEnd(stats, data) {

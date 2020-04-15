@@ -11,13 +11,13 @@ export default {
     "manual": true,
     "desc": true
   },
-  "plugins": [
+  "loaders": [
     [
-      "./plugins/preset",
+      "./loaders/preset",
       {
         "edit": false
       }
     ],
-    "./plugins/base"
+    "./loaders/base"
   ]
 }

@@ -182,6 +182,9 @@ const apply = function (context, options, config) {
       if (ext === '.md') {
         let info = extract(data)
         let config = parseConfig(info.yaml)
+        if (config.sid === 'k90k20kaks') {
+          console.log(data, 'base')
+        }
         cached.push({
           info,
           data,
