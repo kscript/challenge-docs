@@ -48,7 +48,6 @@ const apply = function (context, options, conf) {
       })
       if (newData !== data) {
         writeFileSync(stats.path, newData)
-        console.log(newData, 'preset')
         return newData
       }
     },

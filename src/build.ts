@@ -89,13 +89,7 @@ const handleBlock = (dir, config, done) => {
           resolve()
         } else
           if (stats.type === 'file') {
-            if (/k90k20kaks/.test(data)){
-              console.log(data, 'build1')
-            }
             data = await mutationHook('handleBlockFile', stats, data)
-            if (/k90k20kaks/.test(data)){
-              console.log(data, 'build2')
-            }
             writeFile(outputPath, data, resolve)
           }
       })
