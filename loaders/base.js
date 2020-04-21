@@ -193,6 +193,9 @@ const apply = function (context, options, config) {
     handleBlockEnd(stats, data) {
       const manual = conf.sort.key === 'birthtimeMs' && conf.sort.manual
       countInfo(cached.sort(function (a, b) {
+        if (!!a.config.top !== !!b.config.top) {
+          return a.config.top ? -1 : 1
+        }
         if (manual && a.config.date && b.config.date) {
           return (a.config.date - b.config.date) * (conf.sort.desc ? -1 : 1)
         }
