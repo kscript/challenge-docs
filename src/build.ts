@@ -45,9 +45,19 @@ const loadLoaders = (loaders, context, config) => {
 const execLoaders = async (fn, ...rest) => {
   let result
   let [stats, data] = rest
-  loaders.forEach(async ([loader, options, info]) => {
+  let queue = []
+  let task = Promise.resolve(data)
+  let curr = void 0
+  loaders.forEach(([loader, options, info]) => {
     if (typeof loader[fn] === 'function') {
-      let res = await loader[fn](stats, data)
+      queue.push({loader, fn, stats, info})
+    }
+  })
+  while(curr = queue.shift()) {
+    const { loader, fn, stats, info } = curr
+    task = task.then(data => {
+      return loader[fn](stats, data)
+    }).then((res) => {
       if (typeof res === 'string') {
         result = res
         context.old = context.last
@@ -62,10 +72,12 @@ const execLoaders = async (fn, ...rest) => {
           context[name][fn] = result
         }
         return data = result
+      } else {
+        return result = data
       }
-    }
-  })
-  return result
+    })
+  }
+  return await task
 }
 const mutationHook = async (hook, stats, data) => {
   return mutationData(await execLoaders(hook, stats, data), data)
