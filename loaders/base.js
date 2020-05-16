@@ -182,12 +182,14 @@ const apply = function (context, options, config) {
       if (ext === '.md') {
         let info = extract(data)
         let config = parseConfig(info.yaml)
-        cached.push({
-          info,
-          data,
-          stats,
-          config
-        })
+        if (!config.exclude) {
+          cached.push({
+            info,
+            data,
+            stats,
+            config
+          })
+        }
       }
     },
     handleBlockEnd(stats, data) {
