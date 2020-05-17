@@ -4,6 +4,8 @@ categories:
   - vue
 tags: 
   - 原理
+sid: kaaneuejjm
+date: 2020-05-17 01:58:10
 ---
 两者本质上都是Watcher, 区别在于:
 - computed里创建的Watcher, options(Watcher第四个参数)的lazy为true, 其返回值是watcher.value
